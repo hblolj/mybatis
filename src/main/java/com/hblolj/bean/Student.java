@@ -1,4 +1,4 @@
-package com.hblolj.jdbc.bean;
+package com.hblolj.bean;
 
 import lombok.Data;
 

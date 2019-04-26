@@ -1,7 +1,10 @@
-package com.hblolj.jdbc.demo;
+package com.hblolj.mybatis;
 
-import com.hblolj.jdbc.bean.Student;
-import com.hblolj.jdbc.dao.StudentMapper;
+import com.hblolj.bean.Score;
+import com.hblolj.bean.ScoreExample;
+import com.hblolj.bean.Student;
+import com.hblolj.dao.ScoreMapper;
+import com.hblolj.dao.StudentMapper;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.session.Configuration;
@@ -13,7 +16,6 @@ import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import javax.sql.DataSource;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -24,14 +26,33 @@ import java.util.List;
  **/
 public class Demo {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws FileNotFoundException {
+
         SqlSessionFactory sqlSessionFactory = getSqlSessionFactory4Xml();
         SqlSession sqlSession = sqlSessionFactory.openSession();
-        StudentMapper mapper = sqlSession.getMapper(StudentMapper.class);
-        List<Student> students = mapper.findBySex("male");
-        for (Student student : students) {
-            System.out.println(student.toString());
+        try {
+//            StudentMapper mapper = sqlSession.getMapper(StudentMapper.class);
+            ScoreMapper mapper = sqlSession.getMapper(ScoreMapper.class);
+
+//            Student student = mapper.findById(1);
+            List<Score> scores = mapper.selectByStudentId(1);
+//            System.out.println(student.toString());
+
+            for (Score score : scores) {
+                System.out.println(score.toString());
+            }
+
+//            List<Student> students = mapper.findBySex("male");
+//            for (Student student : students) {
+//                System.out.println(student.toString());
+//            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            sqlSession.close();
         }
+
+
     }
 
     /**
@@ -53,7 +74,7 @@ public class Demo {
         JdbcTransactionFactory transactionFactory = new JdbcTransactionFactory();
         Environment environment = new Environment("devlopment", transactionFactory, dataSource);
         Configuration configuration = new Configuration(environment);
-//        configuration.addMapper();
+        configuration.addMapper(StudentMapper.class);
         return new SqlSessionFactoryBuilder().build(configuration);
     }
 

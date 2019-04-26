@@ -1,6 +1,6 @@
 package com.hblolj.jdbc;
 
-import com.hblolj.jdbc.bean.Student;
+import com.hblolj.bean.Student;
 
 import java.sql.*;
 

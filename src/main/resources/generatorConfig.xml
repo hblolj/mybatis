@@ -3,9 +3,49 @@
         PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
         "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
 <generatorConfiguration>
-    <context id="xxx">
-        <jdbcConnection driverClass="" connectionURL=""></jdbcConnection>
-        <javaModelGenerator targetPackage="" targetProject=""></javaModelGenerator>
-        <table tableName=""></table>
+
+    <!-- context 中标签顺序也是很重要的 eg: sqlMapGenerator 必须在 javaClientGenerator 前面 -->
+    <!-- context 是逆向工程的主要配置，id 表示唯一标识,  targetRuntime 表示适用于的 Mybatis 版本-->
+    <context id="mySql" targetRuntime="Mybatis3">
+        <commentGenerator>
+            <property name="suppressDate" value="true"/>
+            <!-- 去除注释 -->
+            <property name="suppressAllComments" value="true"/>
+        </commentGenerator>
+
+        <!-- 数据库连接配置-->
+        <jdbcConnection driverClass="com.mysql.cj.jdbc.Driver"
+                        connectionURL="jdbc:mysql://localhost:3306/db_learn?useUnicode=true&amp;characterEncoding=utf-8&amp;useSSL=false&amp;useJDBCCompliantTimezoneShift=true&amp;useLegacyDatetimeCode=false&amp;serverTimezone=UTC&amp;nullNamePatternMatchesAll=true"
+                        userId="root"
+                        password="root"/>
+
+        <!-- 类型处理器，非必须-->
+        <javaTypeResolver>
+            <property name="forceBigDecimals" value="false"/>
+        </javaTypeResolver>
+
+        <!-- 生成的实体类所在的位置 targetPackage 包名, targetProject 在项目中的位置-->
+        <javaModelGenerator targetPackage="com.hblolj.bean" targetProject=".\src\main\java">
+            <!-- 是否允许子包 -->
+            <property name="enableSubPackages" value="false"/>
+            <!-- 是否对 model 添加构造函数 -->
+            <property name="constructorBased" value="true"/>
+            <!-- 是否清楚从数据库中查询出的字符串左右两侧的空白字符 -->
+            <property name="trimStrings" value="true"/>
+            <!-- 建立的 model 对象是否不可改变，即生成的 model 对象不会有 setter 方法，只有构造方法 -->
+            <property name="immutable" value="false"/>
+        </javaModelGenerator>
+
+        <!-- 生成的 mapper.xml 所在的位置-->
+        <sqlMapGenerator targetPackage="mapper" targetProject=".\src\main\resources">
+            <property name="enableSubPackages" value="false"/>
+        </sqlMapGenerator>
+
+        <!-- 生成的 Mapper.java 接口所在的位置-->
+        <javaClientGenerator type="XMLMAPPER" targetPackage="com.hblolj.dao" targetProject=".\src\main\java">
+            <property name="enableSubPackages" value="false"/>
+        </javaClientGenerator>
+
+        <table tableName="score" domainObjectName="Score"/>
     </context>
 </generatorConfiguration>
