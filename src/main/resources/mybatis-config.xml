@@ -3,19 +3,55 @@
         PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
+    <!-- resource 与 url 不能同时配置，实际上使用的 ClassLoad.getReource 加载，加载路径为 classes 目录下，对应为 resource 目录下，不用加前缀 /-->
+    <properties resource="config.properties">
+        <property name="driver" value="com.mysql.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://localhost:3306/db_learn?useUnicode=true&amp;characterEncoding=utf-8&amp;useSSL=false&amp;useJDBCCompliantTimezoneShift=true&amp;useLegacyDatetimeCode=false&amp;serverTimezone=UTC"/>
+        <property name="password" value="root"/>
+    </properties>
+    
+    <!--<settings>-->
+        <!--<setting name="" value=""/>-->
+    <!--</settings>-->
+
+    <!-- Student 可以用在使用 com.hblolj.bean.Student 的地方，eg: StudentMapper.xml -->
+    <typeAliases>
+        <typeAlias type="com.hblolj.bean.Student" alias="Student"/>
+    </typeAliases>
+
+    <!-- 类型处理器 -->
+    <!-- 无论是 MyBatis 在预处理语句（PreparedStatement）中设置一个参数时，还是从结果集中取出一个值时，
+    都会用类型处理器将获取的值以合适的方式转换成 Java 类型。这里设置 typeHandler 会对所有的查询结果生效，
+    但对查询参数的设置需要显示指定在 sql 语句中。 -->
+    <typeHandlers>
+        <typeHandler handler="com.hblolj.type.CustomTypeHandler" javaType="java.lang.String"/>
+    </typeHandlers>
+
+    <!-- 对象工厂 -->
+    <!--<objectFactory type="">-->
+       <!--<property name="" value=""/> -->
+    <!--</objectFactory>-->
+
+    <!-- 插件 -->
+    <!--<plugins>-->
+        <!--<plugin interceptor=""></plugin>-->
+    <!--</plugins>-->
+
     <environments default="devlopment">
         <environment id="devlopment">
             <transactionManager type="JDBC"/>
             <dataSource type="POOLED">
-                <property name="driver" value="com.mysql.cj.jdbc.Driver"/>
-                <property name="url" value="jdbc:mysql://localhost:3306/db_learn?useUnicode=true&amp;characterEncoding=utf-8&amp;useSSL=false&amp;useJDBCCompliantTimezoneShift=true&amp;useLegacyDatetimeCode=false&amp;serverTimezone=UTC"/>
-                <property name="username" value="root"/>
-                <property name="password" value="root"/>
+                <property name="driver" value="${driver}"/>
+                <property name="url" value="${url}"/>
+                <property name="username" value="${username}"/>
+                <property name="password" value="${password}"/>
             </dataSource>
         </environment>
     </environments>
     <mappers>
+        <!-- 实际上使用的 ClassLoad.getReource 加载，加载路径为 classes 目录下，对应为 resource 目录下，不用加前缀 /-->
         <mapper resource="mapper/StudentMapper.xml"/>
         <mapper resource="mapper/ScoreMapper.xml"/>
+        <mapper resource="mapper/CourseMapper.xml"/>
     </mappers>
 </configuration>

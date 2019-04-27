@@ -14,7 +14,7 @@
         </commentGenerator>
 
         <!-- 数据库连接配置-->
-        <jdbcConnection driverClass="com.mysql.cj.jdbc.Driver"
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver"
                         connectionURL="jdbc:mysql://localhost:3306/db_learn?useUnicode=true&amp;characterEncoding=utf-8&amp;useSSL=false&amp;useJDBCCompliantTimezoneShift=true&amp;useLegacyDatetimeCode=false&amp;serverTimezone=UTC&amp;nullNamePatternMatchesAll=true"
                         userId="root"
                         password="root"/>
@@ -46,6 +46,7 @@
             <property name="enableSubPackages" value="false"/>
         </javaClientGenerator>
 
-        <table tableName="score" domainObjectName="Score"/>
+        <!--<table tableName="score" domainObjectName="Score"/>-->
+        <table tableName="course" domainObjectName="Course"/>
     </context>
 </generatorConfiguration>

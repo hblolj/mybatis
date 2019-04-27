@@ -1,6 +1,7 @@
 package com.hblolj.dao;
 
 import com.hblolj.bean.Student;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
@@ -17,4 +18,6 @@ public interface StudentMapper {
 
     @Select("select s.student_id as studentId, s.name, s.age, s.sex from student as s where s.student_id = #{id}")
     Student findById(Integer id);
+
+    Integer insertStudent(@Param("student") Student student);
 }

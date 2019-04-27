@@ -1,14 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.hblolj.dao.StudentMapper">
-    <resultMap id="BaseResultMap" type="com.hblolj.bean.Student">
+    <resultMap id="BaseResultMap" type="Student">
         <id column="student_id" jdbcType="INTEGER" property="studentId"/>
-        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="name" jdbcType="VARCHAR" javaType="java.lang.String" property="name"/>
         <result column="age" jdbcType="INTEGER" property="age"/>
         <result column="sex" jdbcType="VARCHAR" property="sex"/>
     </resultMap>
 
     <select id="findBySex" resultMap="BaseResultMap">
-        SELECT * FROM student as s WHERE s.sex = #{sex}
+        SELECT * FROM student as s WHERE s.sex = #{sex, typeHandler=com.hblolj.type.CustomTypeHandler}
     </select>
+
+    <insert id="insertStudent">
+        INSERT INTO student(student_id, `name`, age, sex)
+        VALUES (#{student.studentId}, #{student.name}, #{student.age}, #{student.sex})
+    </insert>
 </mapper>
