@@ -7,6 +7,13 @@
       <arg column="name" jdbcType="VARCHAR" javaType="java.lang.String" />
     </constructor>
   </resultMap>
+
+  <resultMap id="CompleteCourse" type="com.hblolj.bean.CompleteCourse" >
+    <id column="course_id" property="courseId"/>
+    <result column="name" property="name"/>
+    <result column="score" property="score"/>
+  </resultMap>
+
   <sql id="Example_Where_Clause" >
     <where >
       <foreach collection="oredCriteria" item="criteria" separator="or" >
@@ -167,4 +174,14 @@
   <select id="findByCourseId" resultMap="BaseResultMap">
     SELECT * FROM course as c WHERE c.course_id = #{courseId}
   </select>
+
+  <select id="findByCourseIdAndStudentId" resultMap="CompleteCourse">
+    SELECT
+      c.course_id,
+      c.name,
+      sc.score
+    FROM course AS c LEFT JOIN score AS sc ON c.course_id = sc.course_id
+    WHERE sc.student_id = #{student_id}
+  </select>
+
 </mapper>

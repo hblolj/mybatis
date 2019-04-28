@@ -18,4 +18,14 @@ public class Student {
     private Integer age;
 
     private String sex;
+
+    public Student() {
+    }
+
+    public Student(Integer studentId, String name, Integer age, String sex) {
+        this.studentId = studentId;
+        this.name = name;
+        this.age = age;
+        this.sex = sex;
+    }
 }

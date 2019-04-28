@@ -27,8 +27,6 @@ public class CustomTypeHandler implements TypeHandler<String> {
      */
     @Override
     public void setParameter(PreparedStatement preparedStatement, int i, String s, JdbcType jdbcType) throws SQLException {
-        System.out.println(preparedStatement.getMetaData());
-        System.out.println(preparedStatement.getParameterMetaData());
         preparedStatement.setString(i, s);
     }
 

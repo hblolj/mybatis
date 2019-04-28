@@ -8,6 +8,30 @@
       <arg column="score" jdbcType="INTEGER" javaType="java.lang.Integer" />
     </constructor>
   </resultMap>
+
+  <!-- 嵌套结果 -->
+  <resultMap id="CompleteScoreNestResult" type="com.hblolj.bean.CompleteScore">
+    <result column="score" property="score" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+    <association property="student" javaType="com.hblolj.bean.Student">
+      <id property="studentId" column="student_id"/>
+      <result property="name" column="student_name"/>
+      <result property="age" column="age"/>
+      <result property="sex" column="sex"/>
+    </association>
+    <association property="course" javaType="com.hblolj.bean.Course">
+      <id property="courseId" column="course_id"/>
+      <result property="name" column="course_name"/>
+    </association>
+  </resultMap>
+
+  <!-- 嵌套查询 -->
+  <resultMap id="CompleteScoreNestSelect" type="com.hblolj.bean.CompleteScore">
+    <result column="score" property="score" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+    <!-- 引用其他 Mapper.xml 的 select 要显示指定 namespace -->
+    <association property="student" column="student_id" javaType="com.hblolj.bean.Student" select="com.hblolj.dao.StudentMapper.findSimpleStudentByStudentId"/>
+    <association property="course" column="course_id" javaType="com.hblolj.bean.Course" select="com.hblolj.dao.CourseMapper.findByCourseId"/>
+  </resultMap>
+
   <sql id="Example_Where_Clause" >
     <where >
       <foreach collection="oredCriteria" item="criteria" separator="or" >
@@ -154,6 +178,41 @@
   </update>
 
   <select id="selectByStudentId" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List"/> FROM score WHERE student_id = #{studentId}
+  </select>
+
+  <!-- 嵌套结果-->
+  <select id="selectCompleteByStudentIdAndCourseId" resultMap="CompleteScoreNestResult">
+    SELECT
+      sc.score,
+      st.student_id,
+      st.name AS student_name,
+      st.age,
+      st.sex,
+      c.name AS course_name,
+      c.course_id
+    FROM score AS sc LEFT JOIN student AS st ON sc.student_id = st.student_id LEFT JOIN course as c ON sc.course_id = c.course_id
+    WHERE sc.student_id = #{studentId} AND sc.course_id = #{courseId}
+  </select>
+
+  <!-- 四条记录只能查询出三条，用 sql 在数据库中直接查询没有问题 -->
+  <!-- 上面的问题是因为 resultMap 没有设置 id，默认使用的 score 作为id ，有两条记录 score 都为 67，所以去重了-->
+  <!-- 一般不会以中间表为主题进行结果映射，或者可以给中间表添加主键(不推荐) -->
+  <select id="selectCompleteByStudentId" resultMap="CompleteScoreNestResult">
+    SELECT
+      sc.score,
+      st.student_id,
+      st.name AS student_name,
+      st.age,
+      st.sex,
+      c.name AS course_name,
+      c.course_id
+    FROM score AS sc LEFT JOIN student AS st ON sc.student_id = st.student_id LEFT JOIN course as c ON sc.course_id = c.course_id
+    WHERE sc.student_id = #{studentId}
+  </select>
+
+  <!-- 嵌套查询 n+1 问题-->
+  <select id="selectCompleteByNestSelect" resultMap="CompleteScoreNestSelect">
     SELECT <include refid="Base_Column_List"/> FROM score WHERE student_id = #{studentId}
   </select>
 </mapper>

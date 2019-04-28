@@ -1,5 +1,6 @@
 package com.hblolj.dao;
 
+import com.hblolj.bean.CompleteScore;
 import com.hblolj.bean.Score;
 import com.hblolj.bean.ScoreExample;
 import java.util.List;
@@ -18,6 +19,12 @@ public interface ScoreMapper {
     List<Score> selectByExample(ScoreExample example);
 
     List<Score> selectByStudentId(Integer studentId);
+
+    CompleteScore selectCompleteByStudentIdAndCourseId(@Param("studentId") Integer studentId, @Param("courseId") Integer courseId);
+
+    List<CompleteScore> selectCompleteByStudentId(@Param("studentId") Integer studentId);
+
+    List<CompleteScore> selectCompleteByNestSelect(Integer studentId);
 
     int updateByExampleSelective(@Param("record") Score record, @Param("example") ScoreExample example);
 

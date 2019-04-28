@@ -8,12 +8,132 @@
         <result column="sex" jdbcType="VARCHAR" property="sex"/>
     </resultMap>
 
-    <select id="findBySex" resultMap="BaseResultMap">
-        SELECT * FROM student as s WHERE s.sex = #{sex, typeHandler=com.hblolj.type.CustomTypeHandler}
+    <!-- 嵌套结果 -->
+    <resultMap id="CompleteStudent" type="com.hblolj.bean.CompleteStudent">
+        <id column="student_id" property="studentId" jdbcType="INTEGER"/>
+        <result column="student_name" jdbcType="VARCHAR" javaType="java.lang.String" property="name"/>
+        <result column="age" jdbcType="INTEGER" property="age"/>
+        <result column="sex" jdbcType="VARCHAR" property="sex"/>
+        <collection property="courses" ofType="com.hblolj.bean.CompleteCourse">
+            <id column="course_id" property="courseId"/>
+            <result column="course_name" property="name"/>
+            <result column="score" property="score"/>
+        </collection>
+    </resultMap>
+
+    <!-- 嵌套查询 -->
+    <resultMap id="CompleteStudentNestSelect" type="com.hblolj.bean.CompleteStudent">
+        <id column="student_id" property="studentId" jdbcType="INTEGER"/>
+        <result column="name" jdbcType="VARCHAR" javaType="java.lang.String" property="name"/>
+        <result column="age" jdbcType="INTEGER" property="age"/>
+        <result column="sex" jdbcType="VARCHAR" property="sex"/>
+        <!-- 传递 student_id 给 score 查询出 course_id-->
+        <collection property="courses" column="student_id" ofType="com.hblolj.bean.CompleteCourse"
+         select="com.hblolj.dao.CourseMapper.findByCourseIdAndStudentId"/>
+    </resultMap>
+
+    <!--<cache/>-->
+    <!--<cache-ref namespace="com.hblolj.dao.StudentMapper"/>-->
+    <sql id="studentColumns">
+        ${student}.student_id, ${student}.`name`, ${student}.age, ${student}.sex
+    </sql>
+
+    <!-- #{} PreparedStatement-->
+    <select id="findBySex" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT
+        <include refid="studentColumns">
+            <property name="student" value="s"/>
+        </include> 
+        FROM student AS s WHERE s.sex = #{sex, typeHandler=com.hblolj.type.CustomTypeHandler}
+    </select>
+
+    <select id="findBySexLimit" resultMap="BaseResultMap">
+        SELECT
+        <include refid="studentColumns">
+            <property name="student" value="s"/>
+        </include>
+        FROM student AS s WHERE s.sex = #{sex, typeHandler=com.hblolj.type.CustomTypeHandler}
+        LIMIT #{index}, #{num}
     </select>
 
     <insert id="insertStudent">
         INSERT INTO student(student_id, `name`, age, sex)
         VALUES (#{student.studentId}, #{student.name}, #{student.age}, #{student.sex})
     </insert>
+
+    <select id="findSimpleStudentByStudentId" resultMap="BaseResultMap">
+        SELECT
+            <include refid="studentColumns">
+                <property name="student" value="s"/>
+            </include>
+        FROM student AS s WHERE s.student_id = #{studentId}
+    </select>
+
+    <!-- 嵌套结果 -->
+    <select id="findByStudentId" resultMap="CompleteStudent">
+        SELECT
+            st.student_id,
+            st.name AS student_name,
+            st.age,
+            st.sex,
+            sc.score,
+            c.course_id,
+            c.name AS course_name
+        FROM student as st LEFT JOIN score as sc ON st.student_id = sc.student_id LEFT JOIN course AS c ON c.course_id = sc.course_id
+        WHERE st.student_id = #{studentId}
+    </select>
+
+    <!-- 嵌套查询 -->
+    <select id="findStudentByNestSelect" resultMap="CompleteStudentNestSelect">
+        SELECT
+        <include refid="studentColumns">
+            <property name="student" value="s"/>
+        </include>
+        FROM student AS s WHERE s.student_id = #{studentId}
+    </select>
+
+    <!-- 批量插入 -->
+    <insert id="batchInsertStudent">
+        INSERT INTO student(student_id, `name`, age, sex)
+        VALUES
+            <foreach collection="students" item="item" index="index" separator=",">
+                (#{item.studentId}, #{item.name}, #{item.age}, #{item.sex})
+            </foreach>
+    </insert>
+
+    <!-- 批量更新，更新指定的字段为相同的值 -->
+    <update id="batchUpdateStudent1">
+        UPDATE student SET `name` = #{name} WHERE student_id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <!-- 批量更新，更新指定字段为不同的值-->
+    <!-- 按照传递进来的 Student 集合，进行更新 -->
+    <!-- 该类型的更新，不要显示指定 typeHandler 在 sql 语句中，会自动匹配自定义的 typeHandler -->
+    <update id="batchUpdateStudent2">
+        update student
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="age =case" suffix="end,">
+              <foreach collection="students" item="item">
+                  <if test="item.age != null">
+                      when student_id = #{item.studentId} then #{item.age}
+                  </if>
+              </foreach>
+            </trim>
+
+            <trim prefix="name =case" suffix="end,">
+                <foreach collection="students" item="item">
+                    <if test="item.name != null">
+                        when student_id = #{item.studentId} then #{item.name}
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        where
+        <foreach collection="students" separator="or" item="item">
+            student_id = #{item.studentId}
+        </foreach>
+    </update>
 </mapper>
